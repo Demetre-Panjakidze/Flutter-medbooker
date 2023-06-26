@@ -28,3 +28,18 @@ class MedBookerLoaded extends MedBookerState {
   @override
   int get hashCode => bla.hashCode;
 }
+
+class MedBookerError extends MedBookerState {
+  final String bla;
+  const MedBookerError({required this.bla});
+
+  @override
+  bool operator ==(covariant MedBookerError other) {
+    if (identical(this, other)) return true;
+
+    return other.bla == bla;
+  }
+
+  @override
+  int get hashCode => bla.hashCode;
+}

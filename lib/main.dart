@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:medbooker_app/screens/homepage.dart';
+import 'package:medbooker_app/screens/homeScreen.dart';
 import 'package:medbooker_app/screens/layout.dart';
 
 void main() {
