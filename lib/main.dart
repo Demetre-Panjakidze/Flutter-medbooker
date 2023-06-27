@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:medbooker_app/screens/homeScreen.dart';
-import 'package:medbooker_app/screens/layout.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -20,7 +25,7 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData.dark(
         useMaterial3: true,
       ),
-      home: const MbLayoutPage(title: 'Medbooker'),
+      home: const MbHomeScreen(),
     );
   }
 }

@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "569874159827",
+    "project_id": "medbooker-acac6",
+    "storage_bucket": "medbooker-acac6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:569874159827:android:bc5bacc54f60690e201c26",
+        "android_client_info": {
+          "package_name": "com.example.medbooker_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "569874159827-o4a18170rikjiekp1ut71fntgs5p1i9o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKOIK6_1hWCtf3v6yiZHVPgaU5JQAddMg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "569874159827-o4a18170rikjiekp1ut71fntgs5p1i9o.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "569874159827-p7d8m81l23olo5i7sc7ja6qo6krn9uqe.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.medbookerApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
