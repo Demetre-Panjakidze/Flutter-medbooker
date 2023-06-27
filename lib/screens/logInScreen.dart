@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:medbooker_app/screens/homeScreen.dart';
+import 'package:medbooker_app/screens/layoutScreen.dart';
 import 'package:medbooker_app/screens/registerScreen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+final _firebase = FirebaseAuth.instance;
 
 class MbLogInScreen extends StatefulWidget {
   const MbLogInScreen({super.key});
@@ -14,13 +18,36 @@ class _MbLogInScreenState extends State<MbLogInScreen> {
   String _enteredEmail = '';
   String _enteredPassword = '';
 
-  void _submit() {
+  void _submit() async {
     final isValid = _formKey.currentState!.validate();
-    if (isValid) {
-      _formKey.currentState!.save();
-      print(_enteredEmail);
-      print(_enteredPassword);
+    if (!isValid) {
+      return;
     }
+
+    _formKey.currentState!.save();
+
+    try {
+      final userCredentials = await _firebase.signInWithEmailAndPassword(
+        email: _enteredEmail,
+        password: _enteredPassword,
+      );
+
+      print(userCredentials);
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const MbLayoutScreen(),
+        ),
+      );
+    } on FirebaseAuthException catch (error) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(error.message ?? 'Authentification failed.'),
+      ));
+    }
+
+    print(_enteredEmail);
+    print(_enteredPassword);
   }
 
   @override

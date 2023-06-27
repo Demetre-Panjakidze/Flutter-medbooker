@@ -15,7 +15,6 @@ class MbRegisterScreen extends StatefulWidget {
 
 class _MbRegisterScreenState extends State<MbRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  bool _isLogin = true;
   String _enteredEmail = '';
   String _enteredPassword = '';
 
@@ -27,25 +26,24 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
 
     _formKey.currentState!.save();
 
-    if (!_isLogin) {
-    } else {
-      try {
-        final userCredentials = await _firebase.createUserWithEmailAndPassword(
-          email: _enteredEmail,
-          password: _enteredPassword,
-        );
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const MbLayoutScreen(),
-          ),
-        );
-      } on FirebaseAuthException catch (error) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(error.message ?? 'Authentification failed.'),
-        ));
-      }
+    try {
+      final userCredentials = await _firebase.createUserWithEmailAndPassword(
+        email: _enteredEmail,
+        password: _enteredPassword,
+      );
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const MbLayoutScreen(),
+        ),
+      );
+    } on FirebaseAuthException catch (error) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(error.message ?? 'Authentification failed.'),
+      ));
     }
+
     print(_enteredEmail);
     print(_enteredPassword);
   }
@@ -123,9 +121,6 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
                           children: [
                             TextButton(
                               onPressed: () {
-                                setState(() {
-                                  _isLogin = !_isLogin;
-                                });
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (context) => const MbLogInScreen(),
