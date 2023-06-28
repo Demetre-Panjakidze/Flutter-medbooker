@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:medbooker_app/screens/homeScreen.dart';
@@ -21,7 +22,11 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   String _enteredEmail = '';
   String _enteredPassword = '';
+  String _enteredConfirmPassword = '';
+  String _enteredFirstName = '';
+  String _enteredLastName = '';
   File? _selectedImage;
+  bool _isAuthenticating = false;
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
@@ -33,6 +38,10 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
     _formKey.currentState!.save();
 
     try {
+      setState(() {
+        _isAuthenticating = true;
+      });
+
       final userCredentials = await _firebase.createUserWithEmailAndPassword(
         email: _enteredEmail,
         password: _enteredPassword,
@@ -46,6 +55,18 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
       await storageRef.putFile(_selectedImage!);
       final imageUrl = await storageRef.getDownloadURL();
 
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredentials.user!.uid)
+          .set(
+        {
+          'first_name': _enteredFirstName,
+          'last_name': _enteredLastName,
+          'email': _enteredEmail,
+          'image_url': imageUrl,
+        },
+      );
+
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => const MbLayoutScreen(),
@@ -53,9 +74,14 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
       );
     } on FirebaseAuthException catch (error) {
       ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(error.message ?? 'Authentification failed.'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message ?? 'Authentification failed.'),
+        ),
+      );
+      setState(() {
+        _isAuthenticating = false;
+      });
     }
   }
 
@@ -63,105 +89,182 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Card(
-              margin: const EdgeInsets.all(20),
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => const MbHomeScreen(),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(Icons.home),
-                            ),
-                            const Text('Register',
-                                style: TextStyle(fontSize: 20)),
-                          ],
-                        ),
-                        UserImagePicker(
-                          onPickImage: (pickedImage) {
-                            _selectedImage = pickedImage;
-                          },
-                        ),
-                        TextFormField(
-                          decoration: const InputDecoration(
-                            labelText: 'Email address',
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Card(
+                margin: const EdgeInsets.all(20),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const MbHomeScreen(),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.home),
+                              ),
+                              const Text('Register',
+                                  style: TextStyle(fontSize: 20)),
+                            ],
                           ),
-                          keyboardType: TextInputType.emailAddress,
-                          autocorrect: false,
-                          textCapitalization: TextCapitalization.none,
-                          validator: (input) {
-                            if (input == null ||
-                                input.trim().isEmpty ||
-                                !input.contains('@')) {
-                              return 'Enter a valid email';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            _enteredEmail = value!;
-                          },
-                        ),
-                        TextFormField(
-                          decoration: const InputDecoration(
-                            labelText: 'Password',
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              UserImagePicker(
+                                onPickImage: (pickedImage) {
+                                  _selectedImage = pickedImage;
+                                },
+                              ),
+                              Switch(
+                                value: true,
+                                onChanged: (value) {},
+                              )
+                            ],
                           ),
-                          obscureText: true,
-                          validator: (input) {
-                            if (input == null || input.trim().length < 6) {
-                              return 'Enter at least 6 characters long password';
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            _enteredPassword = value!;
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => const MbLogInScreen(),
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(),
-                              child: const Text('Log in'),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'First name',
                             ),
-                            const SizedBox(
-                              width: 30,
+                            enableSuggestions: false,
+                            autocorrect: false,
+                            validator: (input) {
+                              if (input == null ||
+                                  input.isEmpty ||
+                                  input.trim().length < 3) {
+                                return 'Enter at least 3 characters long name';
+                              }
+                              return null;
+                            },
+                            onSaved: (value) {
+                              _enteredFirstName = value!;
+                            },
+                          ),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Last name',
                             ),
-                            ElevatedButton(
-                              onPressed: _submit,
-                              child: const Text('Register'),
+                            enableSuggestions: false,
+                            autocorrect: false,
+                            validator: (input) {
+                              if (input == null ||
+                                  input.isEmpty ||
+                                  input.trim().length < 3) {
+                                return 'Enter at least 3 characters long last name';
+                              }
+                              return null;
+                            },
+                            onSaved: (value) {
+                              _enteredLastName = value!;
+                            },
+                          ),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Email address',
                             ),
-                          ],
-                        )
-                      ],
+                            keyboardType: TextInputType.emailAddress,
+                            autocorrect: false,
+                            textCapitalization: TextCapitalization.none,
+                            validator: (input) {
+                              if (input == null ||
+                                  input.trim().isEmpty ||
+                                  !input.contains('@')) {
+                                return 'Enter a valid email';
+                              }
+                              return null;
+                            },
+                            onSaved: (value) {
+                              _enteredEmail = value!;
+                            },
+                          ),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Password',
+                            ),
+                            obscureText: true,
+                            validator: (input) {
+                              if (input == null || input.trim().length < 6) {
+                                return 'Enter at least 6 characters long password';
+                              }
+                              if (input == _enteredConfirmPassword) {
+                                return 'Passwords should match';
+                              }
+                              return null;
+                            },
+                            onSaved: (value) {
+                              _enteredPassword = value!;
+                            },
+                          ),
+                          TextFormField(
+                            decoration: const InputDecoration(
+                              labelText: 'Confirm password',
+                            ),
+                            obscureText: true,
+                            validator: (input) {
+                              if (input == null || input.trim().length < 6) {
+                                return 'Enter at least 6 characters long password';
+                              }
+                              if (input == _enteredPassword) {
+                                return 'Passwords should match';
+                              }
+                              return null;
+                            },
+                            onSaved: (value) {
+                              _enteredConfirmPassword = value!;
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (_isAuthenticating)
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 8.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              if (!_isAuthenticating)
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const MbLogInScreen(),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(),
+                                  child: const Text('Log in'),
+                                ),
+                              const SizedBox(
+                                width: 30,
+                              ),
+                              if (!_isAuthenticating)
+                                ElevatedButton(
+                                  onPressed: _submit,
+                                  child: const Text('Register'),
+                                ),
+                            ],
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
