@@ -9,6 +9,8 @@ import 'package:medbooker_app/screens/logInScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:medbooker_app/widgets/user_image_picker.dart';
 
+List<String> roles = ['Doctor', 'Patient'];
+
 final _firebase = FirebaseAuth.instance;
 
 class MbRegisterScreen extends StatefulWidget {
@@ -27,6 +29,7 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
   String _enteredLastName = '';
   File? _selectedImage;
   bool _isAuthenticating = false;
+  String currentOption = roles[0];
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
@@ -64,6 +67,7 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
           'last_name': _enteredLastName,
           'email': _enteredEmail,
           'image_url': imageUrl,
+          'user_role': currentOption,
         },
       );
 
@@ -128,9 +132,35 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
                                   _selectedImage = pickedImage;
                                 },
                               ),
-                              Switch(
-                                value: true,
-                                onChanged: (value) {},
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    ListTile(
+                                      title: const Text('Doctor'),
+                                      leading: Radio(
+                                        value: roles[0],
+                                        groupValue: currentOption,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            currentOption = value.toString();
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    ListTile(
+                                      title: const Text('Patient'),
+                                      leading: Radio(
+                                        value: roles[1],
+                                        groupValue: currentOption,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            currentOption = value.toString();
+                                          });
+                                        },
+                                      ),
+                                    )
+                                  ],
+                                ),
                               )
                             ],
                           ),
