@@ -1,8 +1,12 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:medbooker_app/screens/homeScreen.dart';
 import 'package:medbooker_app/screens/layoutScreen.dart';
 import 'package:medbooker_app/screens/logInScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:medbooker_app/widgets/user_image_picker.dart';
 
 final _firebase = FirebaseAuth.instance;
 
@@ -17,10 +21,12 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   String _enteredEmail = '';
   String _enteredPassword = '';
+  File? _selectedImage;
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
-    if (!isValid) {
+
+    if (!isValid && _selectedImage == null) {
       return;
     }
 
@@ -31,6 +37,14 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
         email: _enteredEmail,
         password: _enteredPassword,
       );
+
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('user_images')
+          .child('${userCredentials.user!.uid}.jpg');
+
+      await storageRef.putFile(_selectedImage!);
+      final imageUrl = await storageRef.getDownloadURL();
 
       Navigator.of(context).push(
         MaterialPageRoute(
@@ -77,6 +91,11 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
                             const Text('Register',
                                 style: TextStyle(fontSize: 20)),
                           ],
+                        ),
+                        UserImagePicker(
+                          onPickImage: (pickedImage) {
+                            _selectedImage = pickedImage;
+                          },
                         ),
                         TextFormField(
                           decoration: const InputDecoration(
