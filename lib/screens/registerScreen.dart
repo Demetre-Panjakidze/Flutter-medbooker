@@ -43,9 +43,6 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
         content: Text(error.message ?? 'Authentification failed.'),
       ));
     }
-
-    print(_enteredEmail);
-    print(_enteredPassword);
   }
 
   @override

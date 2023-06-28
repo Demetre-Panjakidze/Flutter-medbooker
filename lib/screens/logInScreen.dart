@@ -32,8 +32,6 @@ class _MbLogInScreenState extends State<MbLogInScreen> {
         password: _enteredPassword,
       );
 
-      print(userCredentials);
-
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => const MbLayoutScreen(),
@@ -45,9 +43,6 @@ class _MbLogInScreenState extends State<MbLogInScreen> {
         content: Text(error.message ?? 'Authentification failed.'),
       ));
     }
-
-    print(_enteredEmail);
-    print(_enteredPassword);
   }
 
   @override
