@@ -68,6 +68,7 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
           'email': _enteredEmail,
           'image_url': imageUrl,
           'user_role': currentOption,
+          'createdAt': Timestamp.now(),
         },
       );
 
@@ -83,6 +84,7 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
           content: Text(error.message ?? 'Authentification failed.'),
         ),
       );
+
       setState(() {
         _isAuthenticating = false;
       });
@@ -120,8 +122,10 @@ class _MbRegisterScreenState extends State<MbRegisterScreen> {
                                 },
                                 icon: const Icon(Icons.home),
                               ),
-                              const Text('Register',
-                                  style: TextStyle(fontSize: 20)),
+                              const Text(
+                                'Register',
+                                style: TextStyle(fontSize: 20),
+                              ),
                             ],
                           ),
                           Row(
