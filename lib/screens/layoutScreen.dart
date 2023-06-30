@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:medbooker_app/pages/dashboard.dart';
 import 'package:medbooker_app/screens/homeScreen.dart';
 import 'package:medbooker_app/widgets/drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,10 +29,10 @@ class _MbLayoutScreenState extends State<MbLayoutScreen> {
         .collection('users')
         .doc(_firebase.currentUser!.uid)
         .get();
-    print(snapshot!.data().runtimeType);
     setState(() {
       data = snapshot!.data() as Map<String, dynamic>;
     });
+    print(data);
   }
 
   void logOut() async {
@@ -69,10 +70,14 @@ class _MbLayoutScreenState extends State<MbLayoutScreen> {
         ],
       ),
       drawer: const MbDrawer(),
-      body: Text(
-        data == null
-            ? "N/A"
-            : data!['email'], // Dashboards and other pages will go here
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: const DashboardPage(),
+        // child: Text(
+        //   data == null
+        //       ? "N/A"
+        //       : data!['email'], // Dashboards and other pages will go here
+        // ),
       ),
     );
   }
